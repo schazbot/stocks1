@@ -16,11 +16,7 @@ class MainContainer extends Component {
   componentDidMount() {
     fetch("http://localhost:3000/stocks")
       .then(resp => resp.json())
-      .then(data =>
-        this.setState({
-          stocks: data
-        })
-      );
+      .then(data => this.setState({ stocks: data }));
   }
 
   buyStock = stockId => {
@@ -32,7 +28,7 @@ class MainContainer extends Component {
   sellStock = stockIndex => {
     this.setState({
       portfolio: this.state.portfolio.filter(
-        (stockId, index) => index !== stockIndex
+        (stockId, idx) => idx !== stockIndex
       )
     });
   };
@@ -51,6 +47,7 @@ class MainContainer extends Component {
       }
     });
   };
+
   changeFilterType = filterType => {
     this.setState({
       options: {
@@ -68,43 +65,45 @@ class MainContainer extends Component {
             return a.name.localeCompare(b.name);
           }
           if (sortType === "Price") {
-            return b.price - a.price;
+            return a.price - b.price;
           }
         });
 
   getUniqueStockTypes = () => {
-    return [...new Set(this.state.stocks.map(stk => stk.type))]
+    return [...new Set(this.state.stocks.map(stock => stock.type))];
   };
 
   filterStocks = (stocks, filterType) => {
-    return filterType === "All" ? stocks : stocks.filter(s => s.type === filterType )
+    return filterType === "All"
+      ? stocks
+      : stocks.filter(s => s.type === filterType);
   };
 
   render() {
-    const { stocks } = this.state;
-
     const portfolio = this.getPortfolioStocks();
+    
+    const filteredStocks = this.filterStocks(
+      this.state.stocks,
+      this.state.options.filter
+    );
+    const sortedStocks = this.sortStocks(
+      filteredStocks,
+      this.state.options.sort
+    );
 
-    const filteredStocks = this.filterStocks(stocks, this.state.options.filter)
-
-    const sortedStocks = this.sortStocks(filteredStocks, this.state.options.sort);
-
-   
 
     return (
       <div>
         <SearchBar
+          filterTypes={["All", ...this.getUniqueStockTypes()]}
+          changeFilterType={this.changeFilterType}
+          changeSortType={this.changeSortType}
           currentSortType={this.state.options.sort}
           sortTypes={["Default", "Alphabetically", "Price"]}
-          filterTypes={["All", ...this.getUniqueStockTypes()]}
-          changeSortType={this.changeSortType}
-          changeFilterType={this.changeFilterType}
         />
         <div className="row">
           <div className="col-8">
-            <StockContainer
-              stocks={sortedStocks}
-              buyStock={this.buyStock} />
+            <StockContainer stocks={sortedStocks} buyStock={this.buyStock} />
           </div>
           <div className="col-4">
             <PortfolioContainer

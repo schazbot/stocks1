@@ -10,16 +10,17 @@ const SearchBar = props => {
             type="radio"
             value={sortType}
             checked={props.currentSortType === sortType}
-            onChange={() => props.changeSortType(sortType)}
+            onChange={e => props.changeSortType(e.target.value)}
           />
           {sortType}
         </label>
-        
       ))}
+
+      <br />
 
       <label>
         <strong>Filter:</strong>
-        <select onChange={e => props.changeFilterType(e.target.value)}>
+        <select onChange={(e) => props.changeFilterType(e.target.value)}>
           {props.filterTypes.map(filterType => (
             <option value={filterType}>{filterType}</option>
           ))}
